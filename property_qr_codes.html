@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Property QR Codes</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding: 40px 20px;
+            }
+            
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+            
+            h1 {
+                color: white;
+                text-align: center;
+                margin-bottom: 15px;
+                font-size: 36px;
+            }
+            
+            .subtitle {
+                color: rgba(255,255,255,0.9);
+                text-align: center;
+                margin-bottom: 40px;
+                font-size: 18px;
+            }
+            
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 30px;
+                margin-bottom: 30px;
+            }
+            
+            .qr-card {
+                background: white;
+                border-radius: 20px;
+                padding: 30px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                text-align: center;
+                transition: transform 0.3s, box-shadow 0.3s;
+            }
+            
+            .qr-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 25px 70px rgba(0,0,0,0.4);
+            }
+            
+            .qr-card img {
+                width: 100%;
+                max-width: 300px;
+                height: auto;
+                margin: 0 auto 20px;
+                display: block;
+                border: 2px solid #f0f0f0;
+                border-radius: 10px;
+            }
+            
+            .property-name {
+                font-size: 20px;
+                font-weight: 700;
+                color: #333;
+                margin-bottom: 10px;
+            }
+            
+            .property-code {
+                font-size: 14px;
+                color: #999;
+                margin-bottom: 15px;
+            }
+            
+            .btn-link {
+                display: inline-block;
+                padding: 10px 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                text-decoration: none;
+                border-radius: 8px;
+                font-weight: 600;
+                transition: transform 0.2s;
+                margin: 5px;
+            }
+            
+            .btn-link:hover {
+                transform: scale(1.05);
+            }
+            
+            .actions {
+                text-align: center;
+                margin-top: 40px;
+            }
+            
+            .instructions {
+                background: white;
+                border-radius: 20px;
+                padding: 30px;
+                margin-bottom: 40px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            }
+            
+            .instructions h2 {
+                color: #667eea;
+                margin-bottom: 15px;
+            }
+            
+            .instructions ol {
+                color: #333;
+                line-height: 1.8;
+                margin-left: 20px;
+            }
+            
+            .instructions li {
+                margin-bottom: 10px;
+            }
+            
+            .print-btn {
+                background: #10b981;
+                border: none;
+                padding: 15px 30px;
+                color: white;
+                font-size: 18px;
+                font-weight: 600;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+            
+            .print-btn:hover {
+                transform: scale(1.05);
+            }
+            
+            @media print {
+                body {
+                    background: white;
+                    padding: 20px;
+                }
+                
+                .instructions, .actions, .subtitle {
+                    display: none;
+                }
+                
+                h1 {
+                    color: #333;
+                }
+                
+                .qr-card {
+                    break-inside: avoid;
+                    page-break-inside: avoid;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Property QR Codes</h1>
+            <p class="subtitle">Print and place these QR codes at each property location</p>
+            
+            <div class="instructions">
+                <h2>📋 How to Use This System</h2>
+                <ol>
+                    <li><strong>Print the QR codes:</strong> Click the "Print QR Codes" button below to print all codes.</li>
+                    <li><strong>Place at properties:</strong> Post each QR code at its corresponding property location (near the meters is ideal).</li>
+                    <li><strong>Scan to enter readings:</strong> Technicians scan the QR code with their phone to access the form for that specific property.</li>
+                    <li><strong>Submit readings:</strong> Fill in water, electric, and gas meter readings along with any notes.</li>
+                    <li><strong>View dashboard:</strong> Access the dashboard to see all readings across all properties.</li>
+                </ol>
+                <p style="margin-top: 20px; color: #666;">
+                    <strong>Note:</strong> All data is stored locally in the browser. For production use, consider hosting this on a web server 
+                    with a proper database backend. You can customize the property names and add more properties by editing the HTML file.
+                </p>
+            </div>
+            
+            <div class="grid">
+                <div class="qr-card">
+                    <img src="qr_code_property1.png" alt="Property 1 QR Code">
+                    <div class="property-name">Main Street Office - Unit 101</div>
+                    <div class="property-code">Code: property1</div>
+                    <a href="property_readings_system.html?property=property1" class="btn-link">Open Form</a>
+                </div>
+                
+                <div class="qr-card">
+                    <img src="qr_code_property2.png" alt="Property 2 QR Code">
+                    <div class="property-name">Oak Avenue Apartment - Unit 5B</div>
+                    <div class="property-code">Code: property2</div>
+                    <a href="property_readings_system.html?property=property2" class="btn-link">Open Form</a>
+                </div>
+                
+                <div class="qr-card">
+                    <img src="qr_code_property3.png" alt="Property 3 QR Code">
+                    <div class="property-name">Pine Street Commercial - Suite 200</div>
+                    <div class="property-code">Code: property3</div>
+                    <a href="property_readings_system.html?property=property3" class="btn-link">Open Form</a>
+                </div>
+                
+                <div class="qr-card">
+                    <img src="qr_code_property4.png" alt="Property 4 QR Code">
+                    <div class="property-name">Elm Road Residential - House 42</div>
+                    <div class="property-code">Code: property4</div>
+                    <a href="property_readings_system.html?property=property4" class="btn-link">Open Form</a>
+                </div>
+                
+                <div class="qr-card">
+                    <img src="qr_code_property5.png" alt="Property 5 QR Code">
+                    <div class="property-name">Maple Drive Warehouse - Building A</div>
+                    <div class="property-code">Code: property5</div>
+                    <a href="property_readings_system.html?property=property5" class="btn-link">Open Form</a>
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button class="print-btn" onclick="window.print()">🖨️ Print QR Codes</button>
+                <a href="property_readings_system.html?view=dashboard" class="btn-link" style="padding: 15px 30px; font-size: 18px;">
+                    📊 View Dashboard
+                </a>
+            </div>
+        </div>
+    </body>
+    </html>

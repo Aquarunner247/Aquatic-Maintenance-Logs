@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Aquatic Venue Maintenance - Dashboard</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                background: linear-gradient(135deg, #0077be 0%, #00a8e8 100%);
+                min-height: 100vh;
+                padding: 20px;
+            }
+            
+            .container {
+                max-width: 1600px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 16px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                overflow: hidden;
+            }
+            
+            .header {
+                background: linear-gradient(135deg, #0066a1 0%, #0077be 100%);
+                color: white;
+                padding: 30px;
+                text-align: center;
+            }
+            
+            .header h1 {
+                font-size: 28px;
+                margin-bottom: 8px;
+            }
+            
+            .header p {
+                opacity: 0.9;
+                font-size: 14px;
+            }
+            
+            .property-tabs {
+                display: flex;
+                background: #f5f5f5;
+                border-bottom: 2px solid #ddd;
+                overflow-x: auto;
+            }
+            
+            .tab {
+                padding: 15px 25px;
+                cursor: pointer;
+                border: none;
+                background: none;
+                font-size: 16px;
+                font-weight: 500;
+                color: #666;
+                border-bottom: 3px solid transparent;
+                transition: all 0.3s;
+                white-space: nowrap;
+            }
+            
+            .tab:hover {
+                background: #e8e8e8;
+            }
+            
+            .tab.active {
+                color: #0077be;
+                border-bottom-color: #0077be;
+                background: white;
+            }
+            
+            .content {
+                padding: 30px;
+            }
+            
+            .month-selector {
+                display: flex;
+                gap: 15px;
+                margin-bottom: 25px;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+            
+            .month-selector label {
+                font-weight: 600;
+                color: #333;
+            }
+            
+            .month-selector select {
+                padding: 10px 15px;
+                border: 2px solid #ddd;
+                border-radius: 8px;
+                font-size: 14px;
+                background: white;
+                cursor: pointer;
+            }
+            
+            .month-selector select:focus {
+                outline: none;
+                border-color: #0077be;
+            }
+            
+            .table-wrapper {
+                overflow-x: auto;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                max-height: 600px;
+                overflow-y: auto;
+            }
+            
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                min-width: 1800px;
+            }
+            
+            thead {
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+            
+            th {
+                background: #0077be;
+                color: white;
+                padding: 12px 8px;
+                text-align: left;
+                font-weight: 600;
+                font-size: 11px;
+                border-right: 1px solid rgba(255,255,255,0.2);
+            }
+            
+            th:first-child {
+                width: 50px;
+                text-align: center;
+                background: #0066a1;
+            }
+            
+            td {
+                padding: 6px;
+                border-bottom: 1px solid #eee;
+                border-right: 1px solid #f0f0f0;
+            }
+            
+            td:first-child {
+                text-align: center;
+                font-weight: 600;
+                color: #0077be;
+                background: #f8f9fa;
+                position: sticky;
+                left: 0;
+                z-index: 5;
+            }
+            
+            input[type="text"], input[type="number"], textarea {
+                width: 100%;
+                min-width: 100px;
+                padding: 6px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 12px;
+                transition: border-color 0.2s;
+            }
+            
+            input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
+                outline: none;
+                border-color: #0077be;
+                background: #e6f7ff;
+            }
+            
+            textarea {
+                min-height: 50px;
+                min-width: 200px;
+                resize: vertical;
+                font-family: inherit;
+            }
+            
+            .actions {
+                display: flex;
+                gap: 15px;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                margin-top: 20px;
+            }
+            
+            .btn {
+                padding: 12px 24px;
+                border: none;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+            
+            .btn-primary {
+                background: #0077be;
+                color: white;
+            }
+            
+            .btn-primary:hover {
+                background: #0066a1;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 119, 190, 0.4);
+            }
+            
+            .btn-secondary {
+                background: #f0f0f0;
+                color: #333;
+            }
+            
+            .btn-secondary:hover {
+                background: #e0e0e0;
+            }
+            
+            .btn-success {
+                background: #10b981;
+                color: white;
+            }
+            
+            .btn-success:hover {
+                background: #059669;
+            }
+            
+            .notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                background: #10b981;
+                color: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                display: none;
+                z-index: 1000;
+                animation: slideIn 0.3s;
+            }
+            
+            @keyframes slideIn {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            .property-info {
+                background: #e6f7ff;
+                padding: 20px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                border: 1px solid #91d5ff;
+            }
+            
+            .property-info h3 {
+                color: #0077be;
+                margin-bottom: 15px;
+                font-size: 18px;
+            }
+            
+            .info-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 12px;
+            }
+            
+            .info-item {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .info-item label {
+                font-weight: 600;
+                color: #0066a1;
+                font-size: 13px;
+            }
+            
+            .info-item input {
+                padding: 8px;
+            }
+            
+            @media (max-width: 768px) {
+                .content {
+                    padding: 15px;
+                }
+                
+                .header h1 {
+                    font-size: 22px;
+                }
+                
+                .tab {
+                    padding: 12px 15px;
+                    font-size: 14px;
+                }
+                
+                table {
+                    font-size: 11px;
+                }
+                
+                th, td {
+                    padding: 4px 3px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="notification" id="notification">Data saved successfully!</div>
+        
+        <div class="container">
+            <div class="header">
+                <h1>🏊 Aquatic Venue Maintenance Dashboard</h1>
+                <p>Data Entry & Management System</p>
+            </div>
+            
+            <div class="property-tabs" id="propertyTabs"></div>
+            
+            <div class="content">
+                <div class="property-info" id="propertyInfo"></div>
+                
+                <div class="month-selector">
+                    <label>📅 Month:</label>
+                    <select id="monthSelect">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                    
+                    <label>Year:</label>
+                    <select id="yearSelect"></select>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table id="maintenanceTable"></table>
+                </div>
+                
+                <div class="actions">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="saveData()">💾 Save Data</button>
+                        <button class="btn btn-secondary" onclick="clearMonth()">🗑️ Clear Month</button>
+                    </div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-success" onclick="exportData()">📥 Export All Data</button>
+                        <button class="btn btn-secondary" onclick="viewQRCodes()">📱 View QR Codes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            // Configuration - EXACT fields from Excel
+            const FIELDS = ["DISINFECTANT RESIDUAL", "pH", "TOTAL ALKALINITY", "CYANURIC ACID", "WATER TEMPERATURE", "MICROBIOLOGICAL TESTING", "PUMP PRESSURE GAUGE (PSI)", "PUMP VACUUM GAUGE (inHg)", "FLOW METER (GPM)", "FILTER PRESSURE GAUGE (PSI)", "TIME OF BACKWASH", "ATTENDANCE", "REMARKS"];
+            
+            const PROPERTIES = [
+                {
+                    id: 'pool1',
+                    name: 'Pool #1',
+                    operator: '',
+                    operatorPhone: '',
+                    waterVolume: '',
+                    minFlow: '',
+                    maxFilterFlow: ''
+                },
+                {
+                    id: 'pool2',
+                    name: 'Pool #2',
+                    operator: '',
+                    operatorPhone: '',
+                    waterVolume: '',
+                    minFlow: '',
+                    maxFilterFlow: ''
+                },
+                {
+                    id: 'pool3',
+                    name: 'Pool #3',
+                    operator: '',
+                    operatorPhone: '',
+                    waterVolume: '',
+                    minFlow: '',
+                    maxFilterFlow: ''
+                },
+                {
+                    id: 'pool4',
+                    name: 'Pool #4',
+                    operator: '',
+                    operatorPhone: '',
+                    waterVolume: '',
+                    minFlow: '',
+                    maxFilterFlow: ''
+                },
+                {
+                    id: 'pool5',
+                    name: 'Pool #5',
+                    operator: '',
+                    operatorPhone: '',
+                    waterVolume: '',
+                    minFlow: '',
+                    maxFilterFlow: ''
+                }
+            ];
+            
+            let currentProperty = 'pool1';
+            let currentMonth = new Date().getMonth() + 1;
+            let currentYear = new Date().getFullYear();
+            
+            // Initialize
+            function init() {
+                createPropertyTabs();
+                populateYears();
+                setCurrentDate();
+                loadPropertyInfo();
+                renderTable();
+                loadData();
+            }
+            
+            function createPropertyTabs() {
+                const tabsContainer = document.getElementById('propertyTabs');
+                PROPERTIES.forEach((prop, index) => {
+                    const tab = document.createElement('button');
+                    tab.className = 'tab' + (index === 0 ? ' active' : '');
+                    tab.textContent = prop.name;
+                    tab.onclick = () => switchProperty(prop.id);
+                    tabsContainer.appendChild(tab);
+                });
+            }
+            
+            function switchProperty(propertyId) {
+                currentProperty = propertyId;
+                
+                // Update tabs
+                const tabs = document.querySelectorAll('.tab');
+                tabs.forEach((tab, index) => {
+                    tab.classList.toggle('active', PROPERTIES[index].id === propertyId);
+                });
+                
+                loadPropertyInfo();
+                loadData();
+            }
+            
+            function loadPropertyInfo() {
+                const property = PROPERTIES.find(p => p.id === currentProperty);
+                const infoDiv = document.getElementById('propertyInfo');
+                
+                infoDiv.innerHTML = `
+                    <h3>${property.name} Information</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Operator/Service Company:</label>
+                            <input type="text" id="operator" value="${property.operator}" onchange="savePropertyInfo()">
+                        </div>
+                        <div class="info-item">
+                            <label>Operator Phone #:</label>
+                            <input type="text" id="operatorPhone" value="${property.operatorPhone}" onchange="savePropertyInfo()">
+                        </div>
+                        <div class="info-item">
+                            <label>Water Volume (Gallons):</label>
+                            <input type="text" id="waterVolume" value="${property.waterVolume}" onchange="savePropertyInfo()">
+                        </div>
+                        <div class="info-item">
+                            <label>Minimum Required Flow (GPM):</label>
+                            <input type="text" id="minFlow" value="${property.minFlow}" onchange="savePropertyInfo()">
+                        </div>
+                        <div class="info-item">
+                            <label>Maximum Filter Flow (GPM):</label>
+                            <input type="text" id="maxFilterFlow" value="${property.maxFilterFlow}" onchange="savePropertyInfo()">
+                        </div>
+                    </div>
+                `;
+            }
+            
+            function savePropertyInfo() {
+                const property = PROPERTIES.find(p => p.id === currentProperty);
+                property.operator = document.getElementById('operator').value;
+                property.operatorPhone = document.getElementById('operatorPhone').value;
+                property.waterVolume = document.getElementById('waterVolume').value;
+                property.minFlow = document.getElementById('minFlow').value;
+                property.maxFilterFlow = document.getElementById('maxFilterFlow').value;
+                
+                localStorage.setItem('properties', JSON.stringify(PROPERTIES));
+                showNotification('Property info saved!');
+            }
+            
+            function populateYears() {
+                const yearSelect = document.getElementById('yearSelect');
+                const currentYear = new Date().getFullYear();
+                for (let year = currentYear - 2; year <= currentYear + 5; year++) {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    yearSelect.appendChild(option);
+                }
+            }
+            
+            function setCurrentDate() {
+                const now = new Date();
+                document.getElementById('monthSelect').value = now.getMonth() + 1;
+                document.getElementById('yearSelect').value = now.getFullYear();
+                
+                document.getElementById('monthSelect').onchange = () => {
+                    currentMonth = parseInt(document.getElementById('monthSelect').value);
+                    loadData();
+                };
+                
+                document.getElementById('yearSelect').onchange = () => {
+                    currentYear = parseInt(document.getElementById('yearSelect').value);
+                    loadData();
+                };
+            }
+            
+            function renderTable() {
+                const table = document.getElementById('maintenanceTable');
+                const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+                
+                // Create header
+                let headerHTML = '<thead><tr><th>DAY</th>';
+                FIELDS.forEach(field => {
+                    headerHTML += `<th>${field}</th>`;
+                });
+                headerHTML += '</tr></thead>';
+                
+                // Create body
+                let bodyHTML = '<tbody>';
+                for (let day = 1; day <= 31; day++) {
+                    const isDisabled = day > daysInMonth;
+                    bodyHTML += `<tr ${isDisabled ? 'style="opacity:0.3"' : ''}>`;
+                    bodyHTML += `<td>${day}</td>`;
+                    
+                    FIELDS.forEach((field, fieldIndex) => {
+                        const fieldId = `day${day}_field${fieldIndex}`;
+                        const isRemarks = field === 'REMARKS';
+                        
+                        if (isRemarks) {
+                            bodyHTML += `<td><textarea id="${fieldId}" ${isDisabled ? 'disabled' : ''} placeholder="Enter remarks..."></textarea></td>`;
+                        } else {
+                            bodyHTML += `<td><input type="text" id="${fieldId}" ${isDisabled ? 'disabled' : ''}></td>`;
+                        }
+                    });
+                    
+                    bodyHTML += '</tr>';
+                }
+                bodyHTML += '</tbody>';
+                
+                table.innerHTML = headerHTML + bodyHTML;
+            }
+            
+            function getStorageKey() {
+                return `${currentProperty}_${currentYear}_${currentMonth}`;
+            }
+            
+            function saveData() {
+                const data = {};
+                const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+                
+                for (let day = 1; day <= daysInMonth; day++) {
+                    data[day] = {};
+                    FIELDS.forEach((field, fieldIndex) => {
+                        const element = document.getElementById(`day${day}_field${fieldIndex}`);
+                        if (element) {
+                            data[day][field] = element.value;
+                        }
+                    });
+                }
+                
+                localStorage.setItem(getStorageKey(), JSON.stringify(data));
+                showNotification('✅ Data saved successfully!');
+            }
+            
+            function loadData() {
+                currentMonth = parseInt(document.getElementById('monthSelect').value);
+                currentYear = parseInt(document.getElementById('yearSelect').value);
+                
+                renderTable();
+                
+                const savedData = localStorage.getItem(getStorageKey());
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    
+                    Object.keys(data).forEach(day => {
+                        FIELDS.forEach((field, fieldIndex) => {
+                            const element = document.getElementById(`day${day}_field${fieldIndex}`);
+                            if (element && data[day][field] !== undefined) {
+                                element.value = data[day][field];
+                            }
+                        });
+                    });
+                }
+                
+                // Load property info
+                const savedProperties = localStorage.getItem('properties');
+                if (savedProperties) {
+                    const props = JSON.parse(savedProperties);
+                    props.forEach((prop, index) => {
+                        if (PROPERTIES[index]) {
+                            Object.assign(PROPERTIES[index], prop);
+                        }
+                    });
+                    loadPropertyInfo();
+                }
+            }
+            
+            function clearMonth() {
+                if (confirm('Are you sure you want to clear all data for this month?')) {
+                    localStorage.removeItem(getStorageKey());
+                    renderTable();
+                    showNotification('⚠️ Month data cleared!');
+                }
+            }
+            
+            function exportData() {
+                const allData = {
+                    exportDate: new Date().toISOString(),
+                    properties: PROPERTIES,
+                    readings: {}
+                };
+                
+                // Collect all data from localStorage
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && (key.includes('pool') || key === 'properties')) {
+                        allData.readings[key] = JSON.parse(localStorage.getItem(key));
+                    }
+                }
+                
+                const dataStr = JSON.stringify(allData, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `aquatic-maintenance-backup-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showNotification('📥 Data exported successfully!');
+            }
+            
+            function viewQRCodes() {
+                window.open('qr-codes.html', '_blank');
+            }
+            
+            function showNotification(message) {
+                const notif = document.getElementById('notification');
+                notif.textContent = message;
+                notif.style.display = 'block';
+                setTimeout(() => {
+                    notif.style.display = 'none';
+                }, 3000);
+            }
+            
+            // Auto-save every 60 seconds
+            setInterval(() => {
+                saveData();
+            }, 60000);
+            
+            // Initialize on load
+            init();
+        </script>
+    </body>
+    </html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>QR Codes - Property Viewers</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                background: linear-gradient(135deg, #0077be 0%, #00a8e8 100%);
+                min-height: 100vh;
+                padding: 30px;
+            }
+            
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 16px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                overflow: hidden;
+            }
+            
+            .header {
+                background: linear-gradient(135deg, #0066a1 0%, #0077be 100%);
+                color: white;
+                padding: 30px;
+                text-align: center;
+            }
+            
+            .header h1 {
+                font-size: 28px;
+                margin-bottom: 8px;
+            }
+            
+            .header p {
+                opacity: 0.9;
+                font-size: 14px;
+            }
+            
+            .content {
+                padding: 40px;
+            }
+            
+            .instructions {
+                background: #e6f7ff;
+                border: 2px solid #91d5ff;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 30px;
+            }
+            
+            .instructions h2 {
+                color: #0077be;
+                margin-bottom: 10px;
+                font-size: 18px;
+            }
+            
+            .instructions ol {
+                margin-left: 20px;
+                color: #333;
+            }
+            
+            .instructions li {
+                margin: 8px 0;
+            }
+            
+            .url-input {
+                background: #fff3cd;
+                border: 2px solid #ffc107;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 30px;
+            }
+            
+            .url-input h3 {
+                color: #856404;
+                margin-bottom: 10px;
+                font-size: 16px;
+            }
+            
+            .url-input input {
+                width: 100%;
+                padding: 12px;
+                border: 2px solid #ddd;
+                border-radius: 6px;
+                font-size: 14px;
+                font-family: monospace;
+            }
+            
+            .url-input button {
+                margin-top: 10px;
+                padding: 10px 20px;
+                background: #ffc107;
+                color: #333;
+                border: none;
+                border-radius: 6px;
+                font-weight: 600;
+                cursor: pointer;
+            }
+            
+            .url-input button:hover {
+                background: #e0a800;
+            }
+            
+            .qr-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 30px;
+                margin-top: 30px;
+            }
+            
+            .qr-card {
+                background: white;
+                border: 2px solid #e0e0e0;
+                border-radius: 12px;
+                padding: 25px;
+                text-align: center;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                page-break-inside: avoid;
+            }
+            
+            .qr-card h3 {
+                color: #0077be;
+                font-size: 24px;
+                margin-bottom: 15px;
+            }
+            
+            .qr-code-wrapper {
+                background: #f8f9fa;
+                padding: 20px;
+                border-radius: 8px;
+                display: inline-block;
+                margin-bottom: 15px;
+            }
+            
+            .qr-card p {
+                color: #666;
+                font-size: 14px;
+                margin-top: 10px;
+            }
+            
+            .qr-card .url {
+                font-family: monospace;
+                font-size: 12px;
+                color: #999;
+                margin-top: 10px;
+                word-break: break-all;
+            }
+            
+            .print-btn {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                padding: 15px 30px;
+                background: #10b981;
+                color: white;
+                border: none;
+                border-radius: 50px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+                transition: all 0.3s;
+            }
+            
+            .print-btn:hover {
+                background: #059669;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+            }
+            
+            .back-btn {
+                position: fixed;
+                bottom: 30px;
+                left: 30px;
+                padding: 15px 30px;
+                background: #0077be;
+                color: white;
+                border: none;
+                border-radius: 50px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(0, 119, 190, 0.4);
+                transition: all 0.3s;
+                text-decoration: none;
+            }
+            
+            .back-btn:hover {
+                background: #0066a1;
+                transform: translateY(-2px);
+            }
+            
+            @media print {
+                body {
+                    background: white;
+                    padding: 0;
+                }
+                
+                .container {
+                    box-shadow: none;
+                }
+                
+                .print-btn, .back-btn, .instructions, .url-input {
+                    display: none;
+                }
+                
+                .qr-card {
+                    page-break-inside: avoid;
+                    border: 2px solid #ddd;
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .qr-grid {
+                    grid-template-columns: 1fr;
+                }
+                
+                .print-btn, .back-btn {
+                    position: static;
+                    width: 100%;
+                    margin-top: 20px;
+                    border-radius: 8px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>📱 QR Codes for Property Viewers</h1>
+                <p>Scan these codes to view maintenance readings for each pool</p>
+            </div>
+            
+            <div class="content">
+                <div class="instructions">
+                    <h2>📋 Instructions</h2>
+                    <ol>
+                        <li><strong>Before deploying:</strong> Update the Base URL below to match your deployed website</li>
+                        <li><strong>Print these QR codes</strong> and place them at each pool location</li>
+                        <li><strong>Staff/Visitors</strong> can scan the QR code with their phone to view readings</li>
+                        <li><strong>Data entry</strong> is done only through the Dashboard (not via QR codes)</li>
+                    </ol>
+                </div>
+                
+                <div class="url-input">
+                    <h3>⚠️ Set Your Deployment URL</h3>
+                    <p style="margin-bottom: 10px; color: #856404;">Replace this with your actual website URL after deployment (e.g., https://yoursite.github.io/ or https://yoursite.netlify.app/)</p>
+                    <input type="text" id="baseUrl" value="http://localhost:8000/" placeholder="https://yoursite.com/">
+                    <button onclick="regenerateQRCodes()">🔄 Regenerate QR Codes</button>
+                </div>
+                
+                <div class="qr-grid" id="qrGrid"></div>
+            </div>
+        </div>
+        
+        <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
+        <button class="print-btn" onclick="window.print()">🖨️ Print QR Codes</button>
+        
+        <script>
+            const properties = [
+                { id: 'pool1', name: 'Pool #1' },
+                { id: 'pool2', name: 'Pool #2' },
+                { id: 'pool3', name: 'Pool #3' },
+                { id: 'pool4', name: 'Pool #4' },
+                { id: 'pool5', name: 'Pool #5' }
+            ];
+            
+            function generateQRCodes() {
+                const baseUrl = document.getElementById('baseUrl').value;
+                const grid = document.getElementById('qrGrid');
+                grid.innerHTML = '';
+                
+                properties.forEach(prop => {
+                    const url = `${baseUrl}view_${prop.id}.html`;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'qr-card';
+                    
+                    const title = document.createElement('h3');
+                    title.textContent = prop.name;
+                    card.appendChild(title);
+                    
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'qr-code-wrapper';
+                    wrapper.id = `qr-${prop.id}`;
+                    card.appendChild(wrapper);
+                    
+                    const instruction = document.createElement('p');
+                    instruction.innerHTML = '<strong>Scan to view readings</strong>';
+                    card.appendChild(instruction);
+                    
+                    const urlText = document.createElement('div');
+                    urlText.className = 'url';
+                    urlText.textContent = url;
+                    card.appendChild(urlText);
+                    
+                    grid.appendChild(card);
+                    
+                    // Generate QR code
+                    new QRCode(document.getElementById(`qr-${prop.id}`), {
+                        text: url,
+                        width: 256,
+                        height: 256,
+                        colorDark: "#0077be",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                });
+            }
+            
+            function regenerateQRCodes() {
+                generateQRCodes();
+            }
+            
+            // Generate QR codes on page load
+            generateQRCodes();
+        </script>
+    </body>
+    </html>

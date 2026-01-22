@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Pool #1 - Readings</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                background: linear-gradient(135deg, #00a8e8 0%, #0077be 100%);
+                min-height: 100vh;
+                padding: 15px;
+            }
+            
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+                overflow: hidden;
+            }
+            
+            .header {
+                background: linear-gradient(135deg, #0066a1 0%, #0077be 100%);
+                color: white;
+                padding: 25px;
+                text-align: center;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+                margin-bottom: 5px;
+            }
+            
+            .header p {
+                opacity: 0.9;
+                font-size: 13px;
+            }
+            
+            .view-only-badge {
+                background: rgba(255,255,255,0.2);
+                padding: 5px 15px;
+                border-radius: 20px;
+                display: inline-block;
+                margin-top: 10px;
+                font-size: 12px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .property-info {
+                background: #e6f7ff;
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                border: 1px solid #91d5ff;
+            }
+            
+            .property-info h3 {
+                color: #0077be;
+                margin-bottom: 10px;
+                font-size: 16px;
+            }
+            
+            .info-row {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 10px;
+                font-size: 13px;
+            }
+            
+            .info-item {
+                background: white;
+                padding: 8px;
+                border-radius: 4px;
+            }
+            
+            .info-item strong {
+                color: #0066a1;
+                display: block;
+                margin-bottom: 3px;
+            }
+            
+            .month-selector {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 20px;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+            
+            .month-selector label {
+                font-weight: 600;
+                color: #333;
+            }
+            
+            .month-selector select {
+                padding: 8px 12px;
+                border: 2px solid #ddd;
+                border-radius: 6px;
+                font-size: 13px;
+                background: white;
+            }
+            
+            .table-wrapper {
+                overflow-x: auto;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                max-height: 500px;
+                overflow-y: auto;
+            }
+            
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                min-width: 1200px;
+            }
+            
+            thead {
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+            
+            th {
+                background: #0077be;
+                color: white;
+                padding: 10px 6px;
+                text-align: left;
+                font-weight: 600;
+                font-size: 10px;
+                border-right: 1px solid rgba(255,255,255,0.2);
+            }
+            
+            th:first-child {
+                width: 40px;
+                text-align: center;
+                background: #0066a1;
+            }
+            
+            td {
+                padding: 8px 6px;
+                border-bottom: 1px solid #eee;
+                border-right: 1px solid #f5f5f5;
+                font-size: 12px;
+            }
+            
+            td:first-child {
+                text-align: center;
+                font-weight: 600;
+                color: #0077be;
+                background: #f8f9fa;
+                position: sticky;
+                left: 0;
+                z-index: 5;
+            }
+            
+            .empty-cell {
+                color: #ccc;
+                text-align: center;
+            }
+            
+            .no-data {
+                text-align: center;
+                padding: 40px;
+                color: #999;
+            }
+            
+            .refresh-btn {
+                margin-top: 20px;
+                padding: 10px 20px;
+                background: #0077be;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            .refresh-btn:hover {
+                background: #0066a1;
+            }
+            
+            @media (max-width: 768px) {
+                .header h1 {
+                    font-size: 20px;
+                }
+                
+                .content {
+                    padding: 15px;
+                }
+                
+                table {
+                    font-size: 11px;
+                }
+                
+                th, td {
+                    padding: 5px 3px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>🏊 Pool #1</h1>
+                <p>Aquatic Venue Maintenance Readings</p>
+                <span class="view-only-badge">👁️ View Only</span>
+            </div>
+            
+            <div class="content">
+                <div class="property-info" id="propertyInfo">
+                    <h3>Property Information</h3>
+                    <div class="info-row" id="infoRow"></div>
+                </div>
+                
+                <div class="month-selector">
+                    <label>📅 Month:</label>
+                    <select id="monthSelect">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                    
+                    <label>Year:</label>
+                    <select id="yearSelect"></select>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table id="readingsTable"></table>
+                </div>
+                
+                <button class="refresh-btn" onclick="loadData()">🔄 Refresh Data</button>
+            </div>
+        </div>
+        
+        <script>
+            const pool1 = 'pool1';
+            const FIELDS = ["DISINFECTANT RESIDUAL", "pH", "TOTAL ALKALINITY", "CYANURIC ACID", "WATER TEMPERATURE", "MICROBIOLOGICAL TESTING", "PUMP PRESSURE GAUGE (PSI)", "PUMP VACUUM GAUGE (inHg)", "FLOW METER (GPM)", "FILTER PRESSURE GAUGE (PSI)", "TIME OF BACKWASH", "ATTENDANCE", "REMARKS"];
+            
+            let currentMonth = new Date().getMonth() + 1;
+            let currentYear = new Date().getFullYear();
+            
+            function init() {
+                populateYears();
+                setCurrentDate();
+                loadPropertyInfo();
+                renderTable();
+                loadData();
+            }
+            
+            function populateYears() {
+                const yearSelect = document.getElementById('yearSelect');
+                const currentYear = new Date().getFullYear();
+                for (let year = currentYear - 2; year <= currentYear + 5; year++) {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    yearSelect.appendChild(option);
+                }
+            }
+            
+            function setCurrentDate() {
+                const now = new Date();
+                document.getElementById('monthSelect').value = now.getMonth() + 1;
+                document.getElementById('yearSelect').value = now.getFullYear();
+                
+                document.getElementById('monthSelect').onchange = loadData;
+                document.getElementById('yearSelect').onchange = loadData;
+            }
+            
+            function loadPropertyInfo() {
+                const savedProperties = localStorage.getItem('properties');
+                if (savedProperties) {
+                    const properties = JSON.parse(savedProperties);
+                    const property = properties.find(p => p.id === pool1);
+                    
+                    if (property) {
+                        const infoRow = document.getElementById('infoRow');
+                        infoRow.innerHTML = `
+                            <div class="info-item">
+                                <strong>Operator</strong>
+                                ${property.operator || 'Not set'}
+                            </div>
+                            <div class="info-item">
+                                <strong>Phone</strong>
+                                ${property.operatorPhone || 'Not set'}
+                            </div>
+                            <div class="info-item">
+                                <strong>Water Volume</strong>
+                                ${property.waterVolume || 'Not set'} gal
+                            </div>
+                            <div class="info-item">
+                                <strong>Min Flow</strong>
+                                ${property.minFlow || 'Not set'} GPM
+                            </div>
+                            <div class="info-item">
+                                <strong>Max Filter Flow</strong>
+                                ${property.maxFilterFlow || 'Not set'} GPM
+                            </div>
+                        `;
+                    }
+                }
+            }
+            
+            function renderTable() {
+                const table = document.getElementById('readingsTable');
+                const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+                
+                // Create header
+                let html = '<thead><tr><th>DAY</th>';
+                FIELDS.forEach(field => {
+                    html += `<th>${field}</th>`;
+                });
+                html += '</tr></thead><tbody>';
+                
+                // Create rows
+                for (let day = 1; day <= daysInMonth; day++) {
+                    html += `<tr><td>${day}</td>`;
+                    FIELDS.forEach((field, index) => {
+                        html += `<td id="day${day}_field${index}" class="empty-cell">—</td>`;
+                    });
+                    html += '</tr>';
+                }
+                
+                html += '</tbody>';
+                table.innerHTML = html;
+            }
+            
+            function loadData() {
+                currentMonth = parseInt(document.getElementById('monthSelect').value);
+                currentYear = parseInt(document.getElementById('yearSelect').value);
+                
+                renderTable();
+                
+                const storageKey = `${pool1}_${currentYear}_${currentMonth}`;
+                const savedData = localStorage.getItem(storageKey);
+                
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    
+                    Object.keys(data).forEach(day => {
+                        FIELDS.forEach((field, fieldIndex) => {
+                            const cell = document.getElementById(`day${day}_field${fieldIndex}`);
+                            if (cell && data[day][field]) {
+                                cell.textContent = data[day][field];
+                                cell.classList.remove('empty-cell');
+                            }
+                        });
+                    });
+                }
+                
+                loadPropertyInfo();
+            }
+            
+            init();
+        </script>
+    </body>
+    </html>
