@@ -15,10 +15,22 @@
     .header { background: linear-gradient(135deg,#0066a1 0%,#0077be 100%); color:white; padding:30px; text-align:center; }
     .header h1 { font-size:28px; margin-bottom:8px; }
     .header p { opacity:0.9; font-size:14px; }
-    .property-tabs { display:flex; background:#f5f5f5; border-bottom:2px solid #ddd; overflow-x:auto; }
-    .tab { padding:15px 25px; cursor:pointer; border:none; background:none; font-size:16px; font-weight:500; color:#666; border-bottom:3px solid transparent; transition:all .3s; white-space:nowrap; }
+
+    .property-tabs-wrap { display:flex; align-items:center; gap:8px; background:#f5f5f5; border-bottom:2px solid #ddd; padding:8px; overflow-x:auto; }
+    .property-tabs { display:flex; gap:6px; overflow-x:auto; }
+    .tab { padding:10px 16px; cursor:pointer; border:none; background:none; font-size:16px; font-weight:500; color:#666; border-bottom:3px solid transparent; transition:all .2s; white-space:nowrap; display:flex; align-items:center; gap:8px; border-radius:8px; }
     .tab:hover { background:#e8e8e8; }
-    .tab.active { color:#0077be; border-bottom-color:#0077be; background:white; }
+    .tab.active { color:#0077be; border-bottom-color:#0077be; background:white; box-shadow:0 2px 6px rgba(0,0,0,0.06); }
+    .tab .tab-name { pointer-events:none; } /* ensures clicks go to tab button, edit uses its own handler */
+    .tab .tab-controls { display:flex; gap:6px; align-items:center; }
+    .edit-btn, .delete-btn, .add-btn {
+      background:transparent; border:none; cursor:pointer; font-size:14px; padding:4px 6px; border-radius:6px;
+    }
+    .edit-btn:hover { background:#eaf5ff; color:#0077be; }
+    .delete-btn:hover { background:#ffecec; color:#e11d48; }
+    .add-btn { background:#0077be; color:white; padding:8px 10px; font-weight:700; border-radius:10px; box-shadow:0 6px 12px rgba(0,119,190,0.15); }
+    .add-btn:hover { background:#0066a1; transform:translateY(-1px); }
+
     .content { padding:30px; }
     .month-selector { display:flex; gap:15px; margin-bottom:25px; flex-wrap:wrap; align-items:center; }
     .month-selector label { font-weight:600; color:#333; }
@@ -42,7 +54,7 @@
     .btn-secondary:hover { background:#e0e0e0; }
     .btn-success { background:#10b981; color:white; }
     .btn-success:hover { background:#059669; }
-    .notification { position:fixed; top:20px; right:20px; padding:15px 25px; background:#10b981; color:white; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.2); display:none; z-index:1000; animation:slideIn .3s; }
+    .notification { position:fixed; top:20px; right:20px; padding:15px 25px; background:#10b981; color:white; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.2); display:none; z-index:1000; }
     @keyframes slideIn { from { transform:translateX(400px); opacity:0 } to { transform:translateX(0); opacity:1 } }
     .property-info { background:#e6f7ff; padding:20px; border-radius:8px; margin-bottom:20px; border:1px solid #91d5ff; }
     .property-info h3 { color:#0077be; margin-bottom:15px; font-size:18px; }
@@ -52,7 +64,7 @@
     @media (max-width:768px) {
       .content { padding:15px; }
       .header h1 { font-size:22px; }
-      .tab { padding:12px 15px; font-size:14px; }
+      .tab { padding:8px 12px; font-size:14px; }
       table { font-size:11px; }
       th, td { padding:4px 3px; }
     }
@@ -67,7 +79,10 @@
       <p>Data Entry & Management System</p>
     </div>
 
-    <div class="property-tabs" id="propertyTabs"></div>
+    <div class="property-tabs-wrap">
+      <div class="property-tabs" id="propertyTabs"></div>
+      <button class="add-btn" id="addPropertyBtn" title="Add property" onclick="addProperty()">＋ Add Property</button>
+    </div>
 
     <div class="content">
       <div class="property-info" id="propertyInfo"></div>
@@ -130,7 +145,8 @@
     // Attendance choices
     const CHOICES = { "ATTENDANCE": ["S.L", "R.A"] };
 
-    const PROPERTIES = [
+    // Properties - made let so we can replace from stored data
+    let PROPERTIES = [
       { id:'pool1', name:'Pool #1', operator:'', operatorPhone:'', waterVolume:'', minFlow:'', maxFilterFlow:'' },
       { id:'pool2', name:'Pool #2', operator:'', operatorPhone:'', waterVolume:'', minFlow:'', maxFilterFlow:'' },
       { id:'pool3', name:'Pool #3', operator:'', operatorPhone:'', waterVolume:'', minFlow:'', maxFilterFlow:'' },
@@ -182,11 +198,40 @@
       });
     }
 
+    // Load properties from localStorage (if present) to allow editable tabs and persistence
+    function loadPropertiesFromStorage() {
+      const savedProps = localStorage.getItem('properties');
+      if (savedProps) {
+        try {
+          const parsed = JSON.parse(savedProps);
+          // If parsed is an array, replace PROPERTIES but keep fields that exist in default (to avoid missing keys)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            PROPERTIES = parsed.map(p => Object.assign({
+              id: p.id || `pool${Date.now()}`,
+              name: p.name || 'Unnamed Pool',
+              operator: p.operator || '',
+              operatorPhone: p.operatorPhone || '',
+              waterVolume: p.waterVolume || '',
+              minFlow: p.minFlow || '',
+              maxFilterFlow: p.maxFilterFlow || ''
+            }, p));
+            // Ensure currentProperty exists
+            if (!PROPERTIES.find(p => p.id === currentProperty)) {
+              currentProperty = PROPERTIES[0].id;
+            }
+          }
+        } catch (e) {
+          console.error('Error parsing saved properties', e);
+        }
+      }
+    }
+
     function init() {
+      loadPropertiesFromStorage();
       createPropertyTabs();
+      loadPropertyInfo();
       populateYears();
       setCurrentDate();
-      loadPropertyInfo();
       buildDatalists();
       renderTable();
       loadData();
@@ -195,11 +240,30 @@
     function createPropertyTabs() {
       const tabsContainer = document.getElementById('propertyTabs');
       tabsContainer.innerHTML = '';
-      PROPERTIES.forEach((prop, index) => {
+      PROPERTIES.forEach((prop) => {
         const tab = document.createElement('button');
-        tab.className = 'tab' + (index === 0 ? ' active' : '');
-        tab.textContent = prop.name;
+        tab.className = 'tab' + (prop.id === currentProperty ? ' active' : '');
+        tab.setAttribute('title', prop.name);
         tab.onclick = () => switchProperty(prop.id);
+
+        // Name span
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'tab-name';
+        nameSpan.textContent = prop.name;
+        tab.appendChild(nameSpan);
+
+        // Controls (edit)
+        const controls = document.createElement('span');
+        controls.className = 'tab-controls';
+
+        const editBtn = document.createElement('button');
+        editBtn.className = 'edit-btn';
+        editBtn.title = 'Edit name';
+        editBtn.innerHTML = '✏️';
+        editBtn.onclick = (ev) => { ev.stopPropagation(); editPropertyName(prop.id); };
+        controls.appendChild(editBtn);
+
+        tab.appendChild(controls);
         tabsContainer.appendChild(tab);
       });
     }
@@ -207,51 +271,63 @@
     function switchProperty(propertyId) {
       currentProperty = propertyId;
       const tabs = document.querySelectorAll('.tab');
-      tabs.forEach((tab, index) => {
-        tab.classList.toggle('active', PROPERTIES[index].id === propertyId);
+      tabs.forEach((tab) => {
+        const nameSpan = tab.querySelector('.tab-name');
+        if (!nameSpan) return;
+        tab.classList.toggle('active', nameSpan && PROPERTIES.some(p => p.id === propertyId && p.name === nameSpan.textContent && p.id === propertyId));
       });
+      // Safer approach: re-render tabs to set active correctly
+      createPropertyTabs();
       loadPropertyInfo();
       loadData();
     }
 
     function loadPropertyInfo() {
-      const property = PROPERTIES.find(p => p.id === currentProperty);
+      const property = PROPERTIES.find(p => p.id === currentProperty) || PROPERTIES[0] || { name: 'Unnamed', operator:'', operatorPhone:'', waterVolume:'', minFlow:'', maxFilterFlow:'' };
+      if (!property) return;
       const infoDiv = document.getElementById('propertyInfo');
       infoDiv.innerHTML = `
         <h3>${property.name} Information</h3>
         <div class="info-grid">
           <div class="info-item">
             <label>Operator/Service Company:</label>
-            <input type="text" id="operator" value="${property.operator}" onchange="savePropertyInfo()">
+            <input type="text" id="operator" value="${escapeHtml(property.operator)}" onchange="savePropertyInfo()">
           </div>
           <div class="info-item">
             <label>Operator Phone #:</label>
-            <input type="text" id="operatorPhone" value="${property.operatorPhone}" onchange="savePropertyInfo()">
+            <input type="text" id="operatorPhone" value="${escapeHtml(property.operatorPhone)}" onchange="savePropertyInfo()">
           </div>
           <div class="info-item">
             <label>Water Volume (Gallons):</label>
-            <input type="text" id="waterVolume" value="${property.waterVolume}" onchange="savePropertyInfo()">
+            <input type="text" id="waterVolume" value="${escapeHtml(property.waterVolume)}" onchange="savePropertyInfo()">
           </div>
           <div class="info-item">
             <label>Minimum Required Flow (GPM):</label>
-            <input type="text" id="minFlow" value="${property.minFlow}" onchange="savePropertyInfo()">
+            <input type="text" id="minFlow" value="${escapeHtml(property.minFlow)}" onchange="savePropertyInfo()">
           </div>
           <div class="info-item">
             <label>Maximum Filter Flow (GPM):</label>
-            <input type="text" id="maxFilterFlow" value="${property.maxFilterFlow}" onchange="savePropertyInfo()">
+            <input type="text" id="maxFilterFlow" value="${escapeHtml(property.maxFilterFlow)}" onchange="savePropertyInfo()">
           </div>
         </div>
       `;
     }
 
+    // simple escape to avoid breaking attribute values
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
     function savePropertyInfo() {
       const property = PROPERTIES.find(p => p.id === currentProperty);
+      if (!property) return;
       property.operator = document.getElementById('operator').value;
       property.operatorPhone = document.getElementById('operatorPhone').value;
       property.waterVolume = document.getElementById('waterVolume').value;
       property.minFlow = document.getElementById('minFlow').value;
       property.maxFilterFlow = document.getElementById('maxFilterFlow').value;
-      localStorage.setItem('properties', JSON.stringify(PROPERTIES));
+      savePropertyList();
       showNotification('Property info saved!');
     }
 
@@ -422,11 +498,19 @@
         });
       }
 
+      // Properties merging (keeps older behavior)
       const savedProps = localStorage.getItem('properties');
       if (savedProps) {
-        const props = JSON.parse(savedProps);
-        props.forEach((prop, index) => { if (PROPERTIES[index]) Object.assign(PROPERTIES[index], prop); });
-        loadPropertyInfo();
+        try {
+          const props = JSON.parse(savedProps);
+          if (Array.isArray(props)) {
+            props.forEach((prop, index) => { if (PROPERTIES[index]) Object.assign(PROPERTIES[index], prop); });
+            createPropertyTabs();
+            loadPropertyInfo();
+          }
+        } catch (e) {
+          console.error('Error loading saved properties', e);
+        }
       }
     }
 
@@ -456,6 +540,53 @@
       n.textContent = message;
       n.style.display = 'block';
       setTimeout(() => { n.style.display = 'none'; }, 3000);
+    }
+
+    // Save the PROPERTIES list (used when renaming or adding)
+    function savePropertyList() {
+      try {
+        localStorage.setItem('properties', JSON.stringify(PROPERTIES));
+        createPropertyTabs();
+      } catch (e) {
+        console.error('Error saving properties', e);
+      }
+    }
+
+    // Edit the name of a property (by id)
+    function editPropertyName(propertyId) {
+      const prop = PROPERTIES.find(p => p.id === propertyId);
+      if (!prop) return;
+      const newName = prompt('Enter property name:', prop.name);
+      if (newName === null) return; // cancelled
+      prop.name = newName.trim() === '' ? 'Unnamed Property' : newName.trim();
+      savePropertyList();
+      loadPropertyInfo();
+      showNotification('Property name updated!');
+    }
+
+    // Add new property
+    function addProperty() {
+      const name = prompt('New property name:', `Pool #${PROPERTIES.length + 1}`) || `Pool #${PROPERTIES.length + 1}`;
+      const id = generateUniquePropertyId(name);
+      const newProp = { id, name, operator:'', operatorPhone:'', waterVolume:'', minFlow:'', maxFilterFlow:'' };
+      PROPERTIES.push(newProp);
+      currentProperty = id;
+      savePropertyList();
+      loadPropertyInfo();
+      renderTable();
+      loadData();
+      showNotification('New property added!');
+    }
+
+    function generateUniquePropertyId(name) {
+      // create a slug-like id but ensure uniqueness
+      const base = (name || 'pool').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || `pool${Date.now()}`;
+      let id = base;
+      let i = 1;
+      while (PROPERTIES.find(p => p.id === id)) {
+        id = `${base}_${i++}`;
+      }
+      return id;
     }
 
     // Auto-save every 60 seconds
